@@ -1,0 +1,7 @@
+# Client
+.DS_STORE
+node_modules
+dist
+coverage/
+.nyc_output/
+*.log
