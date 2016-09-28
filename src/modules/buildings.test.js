@@ -9,6 +9,7 @@ import {
   UPDATE_TYPE_FILTER,
   getBuildings,
   getBuildingsSuccess,
+  getCoversSuccess,
   updateTypeFilter,
   buildingsReducer,
   buildingsSelector,
@@ -61,6 +62,7 @@ test('(Reducer) initializes with default state', t => {
       size: {},
       page: {},
     },
+    ids: [],
     data: [],
     count: 0,
   };
@@ -82,23 +84,54 @@ test('(Reducer) doesnt try to handle getBuildings Saga', reducerTest(
   {},
 ));
 
+
 test('(Reducer) GET_BUILDINGS_SUCCESS - maps api payload to state', reducerTest(
   buildingsReducer,
   {},
   getBuildingsSuccess(mockApi.getBuilding({
     street: '123 street',
     size: '5000',
+    id: '123456',
   })),
   {
-    data: [{
-      title: 'Generic Building Title',
-      street: '123 street',
-      type: 'office',
-      size: 5000,
-    }],
+    ids: ['123456'],
+    data: {
+      123456: {
+        id: '123456',
+        title: 'Generic Building Title',
+        street: '123 street',
+        type: 'office',
+        size: 5000,
+      },
+    },
     count: 1,
   },
 ));
+
+/*
+test('(Reducer) GET_COVERS_SUCCESS - maps covers payload to correct buildings', reducerTest(
+  buildingsReducer,
+  {},
+  getCoversSuccess(mockApi.getBuilding({
+    street: '123 street',
+    size: '5000',
+    id: '123456',
+  })),
+  {
+    ids: ['123456'],
+    data: {
+      123456: {
+        id: '123456',
+        title: 'Generic Building Title',
+        street: '123 street',
+        type: 'office',
+        size: 5000,
+      },
+    },
+    count: 1,
+  },
+));
+*/
 
 test('(Reducer) UPDATE_TYPE_FILTER - adds type to state if it doesnt exist', reducerTest(
   buildingsReducer,

@@ -36,7 +36,8 @@ const mapActionCreators = {
 };
 
 const mapStateToProps = (state) => ({
-  buildings: state.buildings.data,
+  buildings: state.buildings.ids.map(id => state.buildings.data[id]),
+  // buildings: Object.keys(state.buildings.data).map(key => state.buildings.data[key]),
   count: state.buildings.count,
 });
 

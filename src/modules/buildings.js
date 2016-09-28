@@ -47,12 +47,19 @@ export const actions = {
 const ACTION_HANDLERS = {
   [GET_BUILDINGS_SUCCESS]: (state, action) => ({
     ...state,
-    data: action.payload.data.map(building => ({
-      title: _get(building, 'attributes.title'),
-      street: _get(building, 'attributes.address.street'),
-      type: _get(building, 'attributes.building_type'),
-      size: Math.floor(_get(building, 'attributes.building_size.value')),
-    })),
+    ids: action.payload.data.map(building => building.id),
+    data: action.payload.data
+      .map(building => ({
+        id: building.id,
+        title: _get(building, 'attributes.title'),
+        street: _get(building, 'attributes.address.street'),
+        type: _get(building, 'attributes.building_type'),
+        size: Math.floor(_get(building, 'attributes.building_size.value')),
+      }))
+      .reduce((map, obj) => {
+        map[obj.id] = obj; // eslint-disable-line
+        return map;
+      }, {}),
     count: action.payload.meta.count,
   }),
   [GET_COVERS_SUCCESS]: (state, action) => ({
@@ -77,6 +84,7 @@ const initialState = {
     size: {},
     page: {},
   },
+  ids: [],
   data: [],
   count: 0,
 };
@@ -98,8 +106,6 @@ export function *watchGetBuildings() {
 
     try {
       const buildings = yield call(api.getBuildings, size, types, page);
-      console.log('Buildings payload:');
-      console.log(buildings);
       yield put(getBuildingsSuccess(buildings));
 
       const ids = buildings.data
@@ -108,8 +114,13 @@ export function *watchGetBuildings() {
         .reduce((a, b) => a.concat(b)); // flatten array
 
       const covers = yield call(api.getCovers, ids);
+      // console.log('Buildings payload:');
+      // console.log(buildings);
       console.log('Covers payload:');
-      console.log(covers);
+      const logdata = JSON.stringify(covers.data[0], null, 2);
+      const logincluded = JSON.stringify(covers.included[0], null, 2);
+      console.log(logdata);
+      console.log(logincluded);
       yield put(getCoversSuccess(covers));
     }
     catch (error) {
