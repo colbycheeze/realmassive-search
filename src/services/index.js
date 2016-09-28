@@ -22,7 +22,7 @@ const filterBy = (type, filters) =>
   `filter[where]${type}=${filters.reduce((str, value) => `${str},${value}`)}`;
 
 const paginateBy = (limit, offset) =>
- `page[offset]=${offset || 0}&page[limit]=${limit || 10}`;
+ `page[offset]=${offset || 1000}&page[limit]=${limit || 500}`;
 
 const joinFilters = (filters) => filters.reduce((str, filter) => `${str}&${filter}`);
 
@@ -40,11 +40,12 @@ export const getBuildings = (size, types, paginate) => {
 
 export const getCovers = (ids) => {
   const filters = joinFilters([
-    // filterBy('id', ids),
-    filterBy('[category]', ['cover']),
+    filterBy('[id]', ids),
+    filterBy('[category]', ['exterior']),
   ]);
 
-  return callApi(`attachments?${filters}&include=media`);
+  // return callApi(`attachments?${filters}&include=media`);
+  return callApi(`attachments?${filters}&page[limit]=500&include=media`);
 };
 
 export const api = {

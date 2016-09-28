@@ -2,6 +2,7 @@ import test from 'ava';
 import { reducerTest, actionTest } from 'redux-ava';
 import { call, take, select, put } from 'redux-saga/effects';
 import api from 'services';
+import mockApi from 'services/mockApi';
 import {
   GET_BUILDINGS,
   GET_BUILDINGS_SUCCESS,
@@ -81,6 +82,24 @@ test('(Reducer) doesnt try to handle getBuildings Saga', reducerTest(
   {},
 ));
 
+test('(Reducer) GET_BUILDINGS_SUCCESS - maps api payload to state', reducerTest(
+  buildingsReducer,
+  {},
+  getBuildingsSuccess(mockApi.getBuilding({
+    street: '123 street',
+    size: '5000',
+  })),
+  {
+    data: [{
+      title: 'Generic Building Title',
+      street: '123 street',
+      type: 'office',
+      size: 5000,
+    }],
+    count: 1,
+  },
+));
+
 test('(Reducer) UPDATE_TYPE_FILTER - adds type to state if it doesnt exist', reducerTest(
   buildingsReducer,
   {
@@ -99,3 +118,17 @@ test('(Reducer) UPDATE_TYPE_FILTER - adds type to state if it doesnt exist', red
     },
   },
 ));
+
+/*
+test('Mapping', t => {
+  const payload = mockApi.getBuilding();
+  const ids = payload.data
+    .filter(building => building.relationships.attachments)
+    .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
+    .reduce((a, b) => a.concat(b)); // flatten array
+
+  console.log('IDS: ');
+  console.log(ids);
+  t.pass();
+});
+*/

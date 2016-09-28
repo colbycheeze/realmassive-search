@@ -1,5 +1,6 @@
 import { call, take, put, select } from 'redux-saga/effects';
 import api from 'services';
+import _get from 'lodash/get';
 
 // ------------------------------------
 // Constants
@@ -46,18 +47,16 @@ export const actions = {
 const ACTION_HANDLERS = {
   [GET_BUILDINGS_SUCCESS]: (state, action) => ({
     ...state,
-    buildingsPayload: action.payload,
     data: action.payload.data.map(building => ({
-      title: building.attributes.title,
-      street: building.attributes.address.street,
-      type: building.attributes.building_type || 'unknown',
-      size: Math.floor(building.attributes.building_size.value),
+      title: _get(building, 'attributes.title'),
+      street: _get(building, 'attributes.address.street'),
+      type: _get(building, 'attributes.building_type'),
+      size: Math.floor(_get(building, 'attributes.building_size.value')),
     })),
     count: action.payload.meta.count,
   }),
   [GET_COVERS_SUCCESS]: (state, action) => ({
     ...state,
-    coversPayload: action.payload,
     covers: action.payload.included.map(media => media.attributes.url),
   }),
   [UPDATE_TYPE_FILTER]: (state, action) => ({
@@ -103,7 +102,11 @@ export function *watchGetBuildings() {
       console.log(buildings);
       yield put(getBuildingsSuccess(buildings));
 
-      const ids = buildings.included.map(attachment => attachment.id);
+      const ids = buildings.data
+        .filter(building => building.relationships && building.relationships.attachments)
+        .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
+        .reduce((a, b) => a.concat(b)); // flatten array
+
       const covers = yield call(api.getCovers, ids);
       console.log('Covers payload:');
       console.log(covers);

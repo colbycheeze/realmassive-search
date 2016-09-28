@@ -11,14 +11,6 @@ export const HomeView = (props) => (
     <h1>Count: {props.count}</h1>
     <RaisedButton label="Get Buildings" onTouchTap={props.getBuildings} />
     <Filter />
-    <pre>
-      <h3>Buildings</h3>
-      {JSON.stringify(props.rawB, null, 2)}
-    </pre>
-    <pre>
-      <h3>Covers</h3>
-      {JSON.stringify(props.rawC, null, 2)}
-    </pre>
     <ul>
       {props.buildings.map((building, i) => (
         <li key={i}>
@@ -44,8 +36,6 @@ const mapActionCreators = {
 };
 
 const mapStateToProps = (state) => ({
-  rawB: state.buildings.buildingsPayload,
-  rawC: state.buildings.coversPayload,
   buildings: state.buildings.data,
   count: state.buildings.count,
 });
