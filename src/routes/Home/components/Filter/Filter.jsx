@@ -1,12 +1,25 @@
 import React from 'react';
 import Checkbox from 'material-ui/Checkbox';
+import { connect } from 'react-redux';
+import { updateTypeFilter } from 'modules/buildings';
 
-export default class Filter extends React.PureComponent {
+export class Filter extends React.PureComponent {
   updateTypeFilter = (event, isInputChecked) => {
+    const types = this.props.types;
+    const typeToUpdate = event.target.id;
+
+    if (isInputChecked) {
+      this.props.updateTypeFilter(types.concat(typeToUpdate));
+    }
+    else {
+      this.props.updateTypeFilter(types.filter(type => type !== typeToUpdate));
+    }
   }
 
   render() {
-    const { industrial, office, retail } = this.props.filters;
+    const industrial = this.props.types.includes('industrial');
+    const retail = this.props.types.includes('retail');
+    const office = this.props.types.includes('office');
 
     return (
       <div>
@@ -35,9 +48,16 @@ export default class Filter extends React.PureComponent {
 }
 
 Filter.propTypes = {
-  filters: React.PropTypes.shape({
-    industrial: React.PropTypes.bool.isRequired,
-    office: React.PropTypes.bool.isRequired,
-    retail: React.PropTypes.bool.isRequired,
-  }).isRequired,
+  types: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+  updateTypeFilter: React.PropTypes.func.isRequired,
 };
+
+const mapActionCreators = {
+  updateTypeFilter,
+};
+
+const mapStateToProps = (state) => ({
+  types: state.buildings.filters.types,
+});
+
+export default connect(mapStateToProps, mapActionCreators)(Filter);

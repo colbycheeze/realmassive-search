@@ -31,11 +31,6 @@ const config = {
   server_port : process.env.PORT || 3000,
 
   // ----------------------------------
-  // Controller Service Configuration
-  // ----------------------------------
-  controller_service : process.env.CONTROLLER_SERVICE,
-
-  // ----------------------------------
   // Compiler Configuration
   // ----------------------------------
   compiler_css_modules     : true,
@@ -84,7 +79,6 @@ config.globals = {
   '__DEBUG__'    : config.env === 'development' && !argv.no_debug,
   '__COVERAGE__' : !argv.watch && config.env === 'test',
   '__BASENAME__' : JSON.stringify(process.env.BASENAME || ''),
-  '__CONTROLLER_API__' : JSON.stringify(config.controller_service || ''),
 };
 
 // ------------------------------------

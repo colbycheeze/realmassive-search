@@ -17,7 +17,6 @@
     "__DEBUG__"    : false,
     "__COVERAGE__" : false,
     "__BASENAME__" : false,
-    "__CONTROLLER_API__" : false
   },
   "rules": {
     "global-require": [0],

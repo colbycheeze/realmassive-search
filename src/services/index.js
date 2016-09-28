@@ -19,26 +19,29 @@ export const callApi = (endpoint, {
   });
 
 const filterBy = (type, filters) =>
-  `filter[where][${type}]=${filters.reduce((str, value) => `${str},${value}`)}`;
+  `filter[where]${type}=${filters.reduce((str, value) => `${str},${value}`)}`;
+
+const paginateBy = (limit, offset) =>
+ `page[offset]=${offset || 0}&page[limit]=${limit || 10}`;
 
 const joinFilters = (filters) => filters.reduce((str, filter) => `${str}&${filter}`);
 
-export const getBuildings = ({
-  size = { min: 0, max: -1 },
-  types = ['industrial', 'office', 'retail'],
-} = {}) => {
-  const filters = joinFilters([
-    filterBy('building_type', types),
-  ]);
+export const getBuildings = (size, types, paginate) => {
+  let filters = [];
+  if (types && types.length > 0) filters.push(filterBy('[building_type]', types));
+  if (size && size.min) filters.push(filterBy('[building_size.value][gt]', [size.min]));
+  if (size && size.max) filters.push(filterBy('[building_size.value][lt]', [size.max]));
+  if (paginate) filters.push(paginateBy(paginate.limit, paginate.offset));
 
-  return callApi(`buildings?${filters}&include=attachments`);
+  filters = filters.length > 0 ? `${joinFilters(filters)}&` : '';
+
+  return callApi(`buildings?${filters}include=attachments`);
 };
+
 export const getCovers = (ids) => {
-  // const idString = ids.reduce((str, id) => `${str},${id}`);
-  // return callApi(`attachments?filter[where][id]=${idString}&filter[where][category]=exterior&include=media`);
   const filters = joinFilters([
-    filterBy('id', ids),
-    filterBy('category', ['exterior']),
+    // filterBy('id', ids),
+    filterBy('[category]', ['cover']),
   ]);
 
   return callApi(`attachments?${filters}&include=media`);
