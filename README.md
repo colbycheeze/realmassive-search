@@ -1,4 +1,4 @@
-# RealMassive Search
+# RealMassive Search - [Live Demo](http://realmassive-search.mybluemix.net/)
 
 ## Quick Start
 Install dependencies and run app locally
