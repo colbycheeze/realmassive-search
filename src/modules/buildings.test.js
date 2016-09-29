@@ -60,7 +60,10 @@ test('(Reducer) initializes with default state', t => {
     filters: {
       types: [],
       size: {},
-      page: {},
+      page: {
+        offset: 26,
+        limit: 25,
+      },
     },
     ids: [],
     data: {},
@@ -176,14 +179,14 @@ test('(Reducer) UPDATE_TYPE_FILTER - adds type to state if it doesnt exist', red
 
 /*
 test('Mapping', t => {
-  const payload = mockApi.getBuildings();
-  const ids = payload.data
-    .filter(building => building.relationships.attachments)
-    .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
-    .reduce((a, b) => a.concat(b)); // flatten array
+const payload = mockApi.getBuildings();
+const ids = payload.data
+.filter(building => building.relationships.attachments)
+.map(building => building.relationships.attachments.data.map(attachment => attachment.id))
+.reduce((a, b) => a.concat(b)); // flatten array
 
-  console.log('IDS: ');
-  console.log(ids);
-  t.pass();
+console.log('IDS: ');
+console.log(ids);
+t.pass();
 });
 */

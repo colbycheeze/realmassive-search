@@ -1,4 +1,4 @@
-import { call, take, put, select } from 'redux-saga/effects';
+import { race, call, take, put, select } from 'redux-saga/effects';
 import api from 'services';
 import _get from 'lodash/get';
 
@@ -9,6 +9,7 @@ export const GET_BUILDINGS = 'buildings/GET_BUILDINGS';
 export const GET_BUILDINGS_SUCCESS = 'buildings/GET_BUILDINGS_SUCCESS';
 export const GET_COVERS_SUCCESS = 'buildings/GET_COVERS_SUCCESS';
 export const UPDATE_TYPE_FILTER = 'buildings/UPDATE_TYPE_FILTER';
+export const UPDATE_SIZE_FILTER = 'buildings/UPDATE_SIZE_FILTER';
 
 export const buildingsSelector = state => state.buildings;
 
@@ -21,6 +22,11 @@ export const getBuildings = () => ({
 
 export const updateTypeFilter = (payload) => ({
   type: UPDATE_TYPE_FILTER,
+  payload,
+});
+
+export const updateSizeFilter = (payload) => ({
+  type: UPDATE_SIZE_FILTER,
   payload,
 });
 
@@ -52,10 +58,10 @@ const ACTION_HANDLERS = {
     data: action.payload.data
       .map(building => ({
         id: building.id,
-        title: _get(building, 'attributes.title'),
-        street: _get(building, 'attributes.address.street'),
-        type: _get(building, 'attributes.building_type'),
-        size: Math.floor(_get(building, 'attributes.building_size.value')),
+        title: _get(building, 'attributes.title', 'unknown'),
+        street: _get(building, 'attributes.address.street', 'unknown'),
+        type: _get(building, 'attributes.building_type', 'unknown'),
+        size: Math.floor(_get(building, 'attributes.building_size.value', 'unknown')),
       }))
       .reduce((map, obj) => {
         map[obj.id] = obj; // eslint-disable-line
@@ -96,6 +102,13 @@ const ACTION_HANDLERS = {
       types: [...action.payload],
     },
   }),
+  [UPDATE_SIZE_FILTER]: (state, action) => ({
+    ...state,
+    filters: {
+      ...state.filters,
+      size: action.payload,
+    },
+  }),
 };
 
 // ------------------------------------
@@ -105,7 +118,10 @@ const initialState = {
   filters: {
     types: [],
     size: {},
-    page: {},
+    page: {
+      offset: 26,
+      limit: 25,
+    },
   },
   ids: [],
   data: {},
@@ -132,11 +148,11 @@ export function *watchGetBuildings() {
       yield put(getBuildingsSuccess(buildings));
 
       const ids = buildings.data
-      .filter(building => building.relationships && building.relationships.attachments)
-      .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
-      .reduce((a, b) => a.concat(b)); // flatten array
+        .filter(building => building.relationships && building.relationships.attachments)
+        .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
+        .reduce((a, b) => a.concat(b)); // flatten array
 
-      const covers = yield call(api.getCovers, ids);
+      const covers = yield call(api.getCovers, ids, page.limit);
       yield put(getCoversSuccess(covers));
     }
     catch (error) {
@@ -146,14 +162,18 @@ export function *watchGetBuildings() {
   }
 }
 
-export function *watchUpdateTypeFilter() {
+export function *watchUpdateFilter() {
   while (true) {
-    yield take(UPDATE_TYPE_FILTER);
+    yield race({
+      type: take(UPDATE_TYPE_FILTER),
+      size: take(UPDATE_SIZE_FILTER),
+    });
+
     yield put(getBuildings());
   }
 }
 
 export const sagas = [
   watchGetBuildings,
-  watchUpdateTypeFilter,
+  watchUpdateFilter,
 ];

@@ -38,14 +38,14 @@ export const getBuildings = (size, types, paginate) => {
   return callApi(`buildings?${filters}include=attachments`);
 };
 
-export const getCovers = (ids) => {
+export const getCovers = (ids, limit) => {
   const filters = joinFilters([
     filterBy('[id]', ids),
     filterBy('[category]', ['exterior']),
   ]);
+  const pageLimit = limit ? `&page[limit]=${limit}` : '';
 
-  // return callApi(`attachments?${filters}&include=media`);
-  return callApi(`attachments?${filters}&page[limit]=10&include=media`);
+  return callApi(`attachments?${filters}${pageLimit}&include=media`);
 };
 
 export const api = {

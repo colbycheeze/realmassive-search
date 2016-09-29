@@ -2,6 +2,7 @@ import test from 'ava';
 import nock from 'nock';
 import {
   getBuildings,
+  getCovers,
   listingsApi,
 } from '../services';
 
@@ -21,7 +22,7 @@ test('(API) getBuildings - default', function *(t) {
   t.deepEqual(response, success);
 });
 
-test('(API) getBuildings - custom size filter', function *(t) {
+test('(API) getBuildings - size filter', function *(t) {
   const endpoint = '/buildings?filter[where][building_size.value][lt]=5000&include=attachments';
   const success = { success: true };
 
@@ -33,7 +34,7 @@ test('(API) getBuildings - custom size filter', function *(t) {
   t.deepEqual(response, success);
 });
 
-test('(API) getBuildings - custom type filter', function *(t) {
+test('(API) getBuildings - type filter', function *(t) {
   const endpoint = '/buildings?filter[where][building_type]=retail&include=attachments';
   const success = { success: true };
 
@@ -45,7 +46,7 @@ test('(API) getBuildings - custom type filter', function *(t) {
   t.deepEqual(response, success);
 });
 
-test('(API) getBuildings - custom type filter', function *(t) {
+test('(API) getBuildings - pagination', function *(t) {
   const endpoint = '/buildings?page[offset]=100&page[limit]=100&include=attachments';
   const success = { success: true };
 
@@ -78,3 +79,27 @@ test('(API) getBuildings - fail', function *(t) {
 // ------------------------------------
 // getCovers
 // ------------------------------------
+
+test('(API) getCovers - no limit', function *(t) {
+  const endpoint = '/attachments?filter[where][id]=123,456&filter[where][category]=exterior&include=media';
+  const success = { success: true };
+
+  nock(listingsApi)
+    .get(endpoint)
+    .reply(200, success);
+
+  const response = yield getCovers(['123', '456']);
+  t.deepEqual(response, success);
+});
+
+test('(API) getCovers - limit passed', function *(t) {
+  const endpoint = '/attachments?filter[where][id]=123,456&filter[where][category]=exterior&page[limit]=50&include=media';
+  const success = { success: true };
+
+  nock(listingsApi)
+    .get(endpoint)
+    .reply(200, success);
+
+  const response = yield getCovers(['123', '456'], 50);
+  t.deepEqual(response, success);
+});

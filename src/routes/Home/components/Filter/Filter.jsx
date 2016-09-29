@@ -1,9 +1,18 @@
 import React from 'react';
 import Checkbox from 'material-ui/Checkbox';
+import TextField from 'material-ui/TextField';
 import { connect } from 'react-redux';
-import { updateTypeFilter } from 'modules/buildings';
+import { updateTypeFilter, updateSizeFilter } from 'modules/buildings';
 
 export class Filter extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      min: '',
+      max: '',
+    };
+  }
+
   updateTypeFilter = (event, isInputChecked) => {
     const types = this.props.types;
     const typeToUpdate = event.target.id;
@@ -15,6 +24,17 @@ export class Filter extends React.PureComponent {
       this.props.updateTypeFilter(types.filter(type => type !== typeToUpdate));
     }
   }
+
+  updateSizeFilter = () => {
+    const { min, max } = this.state;
+
+    this.props.updateSizeFilter({ min, max });
+  }
+
+  updateInput = (event) => {
+    this.setState({ [event.target.id]: event.target.value });
+  }
+
 
   render() {
     const industrial = this.props.types.includes('industrial');
@@ -42,6 +62,23 @@ export class Filter extends React.PureComponent {
           checked={retail}
           onCheck={this.updateTypeFilter}
         />
+        <h4>Size:</h4>
+        <TextField
+          id="min"
+          style={{ width: '100px', marginRight: '1rem' }}
+          hintText="Min"
+          value={this.state.min}
+          onBlur={this.updateSizeFilter}
+          onChange={this.updateInput}
+        />
+        <TextField
+          id="max"
+          style={{ width: '100px' }}
+          hintText="Max"
+          value={this.state.max}
+          onBlur={this.updateSizeFilter}
+          onChange={this.updateInput}
+        />
       </div>
     );
   }
@@ -50,10 +87,12 @@ export class Filter extends React.PureComponent {
 Filter.propTypes = {
   types: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   updateTypeFilter: React.PropTypes.func.isRequired,
+  updateSizeFilter: React.PropTypes.func.isRequired,
 };
 
 const mapActionCreators = {
   updateTypeFilter,
+  updateSizeFilter,
 };
 
 const mapStateToProps = (state) => ({

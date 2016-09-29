@@ -6,7 +6,7 @@ export const BuildingCard = (props) => {
   const { title, street, cover, size } = props.building;
 
   return (
-    <Card style={{ maxWidth: '500px' }}>
+    <Card>
       <CardHeader
         title={title}
         subtitle={street}

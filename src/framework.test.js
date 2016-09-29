@@ -27,12 +27,6 @@ test('(Ava) api works as expected.', t => {
   t.notThrows(() => {});
 });
 
-// Sinon docs: http://sinonjs.org/docs/
-test.todo('Write some sinon examples');
-
-// redux-ava docs: https://github.com/sotojuan/redux-ava#examples
-test.todo('Write some examples of redux-ava');
-
 const Fixture = () => (
   <div>
     <input id="checked" defaultChecked />
@@ -50,7 +44,6 @@ test('(Enzyme) shallow', t => {
 });
 
 // Mount is used when you need to interact with lifecycle methods such as componentDidMount
-test.todo('Write example of using lifecycle methods with Enzyme mount');
 test('(Enzyme) mount', t => {
   const wrapper = mount(<Fixture />);
   t.is(wrapper.find('input').length, 2);
