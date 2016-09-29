@@ -44,6 +44,7 @@ export const actions = {
 // ------------------------------------
 // Action Handlers
 // ------------------------------------
+
 const ACTION_HANDLERS = {
   [GET_BUILDINGS_SUCCESS]: (state, action) => ({
     ...state,
@@ -62,10 +63,32 @@ const ACTION_HANDLERS = {
       }, {}),
     count: action.payload.meta.count,
   }),
-  [GET_COVERS_SUCCESS]: (state, action) => ({
-    ...state,
-    covers: action.payload.included.map(media => media.attributes.url),
-  }),
+  [GET_COVERS_SUCCESS]: (state, action) => {
+    const mappings = action.payload.data
+      .map(attachment => ({
+        building: _get(attachment, 'relationships.buildings.links.related').split('buildings/')[1],
+        media: _get(attachment, 'relationships.media.data.id'),
+      }))
+      .reduce((map, obj) => {
+        map[obj.media] = obj; // eslint-disable-line
+        return map;
+      }, {});
+
+    const data = {};
+    action.payload.included.forEach(media => {
+      const id = mappings[media.id].building;
+
+      data[id] = {
+        ...state.data[id],
+        cover: media.attributes.url,
+      };
+    });
+
+    return {
+      ...state,
+      data: Object.assign({}, state.data, data),
+    };
+  },
   [UPDATE_TYPE_FILTER]: (state, action) => ({
     ...state,
     filters: {
@@ -85,7 +108,7 @@ const initialState = {
     page: {},
   },
   ids: [],
-  data: [],
+  data: {},
   count: 0,
 };
 export const buildingsReducer = (state = initialState, action) => {
@@ -109,18 +132,11 @@ export function *watchGetBuildings() {
       yield put(getBuildingsSuccess(buildings));
 
       const ids = buildings.data
-        .filter(building => building.relationships && building.relationships.attachments)
-        .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
-        .reduce((a, b) => a.concat(b)); // flatten array
+      .filter(building => building.relationships && building.relationships.attachments)
+      .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
+      .reduce((a, b) => a.concat(b)); // flatten array
 
       const covers = yield call(api.getCovers, ids);
-      // console.log('Buildings payload:');
-      // console.log(buildings);
-      console.log('Covers payload:');
-      const logdata = JSON.stringify(covers.data[0], null, 2);
-      const logincluded = JSON.stringify(covers.included[0], null, 2);
-      console.log(logdata);
-      console.log(logincluded);
       yield put(getCoversSuccess(covers));
     }
     catch (error) {

@@ -63,7 +63,7 @@ test('(Reducer) initializes with default state', t => {
       page: {},
     },
     ids: [],
-    data: [],
+    data: {},
     count: 0,
   };
 
@@ -88,7 +88,7 @@ test('(Reducer) doesnt try to handle getBuildings Saga', reducerTest(
 test('(Reducer) GET_BUILDINGS_SUCCESS - maps api payload to state', reducerTest(
   buildingsReducer,
   {},
-  getBuildingsSuccess(mockApi.getBuilding({
+  getBuildingsSuccess(mockApi.getBuildings({
     street: '123 street',
     size: '5000',
     id: '123456',
@@ -108,30 +108,52 @@ test('(Reducer) GET_BUILDINGS_SUCCESS - maps api payload to state', reducerTest(
   },
 ));
 
-/*
-test('(Reducer) GET_COVERS_SUCCESS - maps covers payload to correct buildings', reducerTest(
+test('(Reducer) GET_COVERS_SUCCESS - matches and adds covers to building data object', reducerTest(
   buildingsReducer,
-  {},
-  getCoversSuccess(mockApi.getBuilding({
-    street: '123 street',
-    size: '5000',
-    id: '123456',
-  })),
   {
-    ids: ['123456'],
     data: {
-      123456: {
-        id: '123456',
+      buildingId: {
+        id: 'buildingId',
+        title: 'Generic Building Title',
+        street: '123 street',
+        type: 'office',
+        size: 5000,
+      },
+      anotherId: {
+        id: 'anotherId',
         title: 'Generic Building Title',
         street: '123 street',
         type: 'office',
         size: 5000,
       },
     },
-    count: 1,
+  },
+  getCoversSuccess(mockApi.getCovers({
+    id: 'attachmentId',
+    buildingId: 'buildingId',
+    mediaId: 'mediaId',
+    cover: 'http://cover.com',
+  })),
+  {
+    data: {
+      buildingId: {
+        id: 'buildingId',
+        title: 'Generic Building Title',
+        street: '123 street',
+        type: 'office',
+        size: 5000,
+        cover: 'http://cover.com',
+      },
+      anotherId: {
+        id: 'anotherId',
+        title: 'Generic Building Title',
+        street: '123 street',
+        type: 'office',
+        size: 5000,
+      },
+    },
   },
 ));
-*/
 
 test('(Reducer) UPDATE_TYPE_FILTER - adds type to state if it doesnt exist', reducerTest(
   buildingsReducer,
@@ -154,7 +176,7 @@ test('(Reducer) UPDATE_TYPE_FILTER - adds type to state if it doesnt exist', red
 
 /*
 test('Mapping', t => {
-  const payload = mockApi.getBuilding();
+  const payload = mockApi.getBuildings();
   const ids = payload.data
     .filter(building => building.relationships.attachments)
     .map(building => building.relationships.attachments.data.map(attachment => attachment.id))

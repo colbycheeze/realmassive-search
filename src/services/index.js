@@ -22,7 +22,7 @@ const filterBy = (type, filters) =>
   `filter[where]${type}=${filters.reduce((str, value) => `${str},${value}`)}`;
 
 const paginateBy = (limit, offset) =>
- `page[offset]=${offset || 1000}&page[limit]=${limit || 500}`;
+ `page[offset]=${offset || 1000}&page[limit]=${limit || 10}`;
 
 const joinFilters = (filters) => filters.reduce((str, filter) => `${str}&${filter}`);
 
@@ -45,7 +45,7 @@ export const getCovers = (ids) => {
   ]);
 
   // return callApi(`attachments?${filters}&include=media`);
-  return callApi(`attachments?${filters}&page[limit]=500&include=media`);
+  return callApi(`attachments?${filters}&page[limit]=10&include=media`);
 };
 
 export const api = {
