@@ -31,6 +31,16 @@ export class Filter extends React.PureComponent {
     this.props.updateSizeFilter({ min, max });
   }
 
+  handleKeyDown = (event) => {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      this.updateSizeFilter();
+    }
+  }
+
   updateInput = (event) => {
     this.setState({ [event.target.id]: event.target.value });
   }
@@ -70,6 +80,7 @@ export class Filter extends React.PureComponent {
           value={this.state.min}
           onBlur={this.updateSizeFilter}
           onChange={this.updateInput}
+          onKeyDown={this.handleKeyDown}
         />
         <TextField
           id="max"
@@ -78,6 +89,7 @@ export class Filter extends React.PureComponent {
           value={this.state.max}
           onBlur={this.updateSizeFilter}
           onChange={this.updateInput}
+          onKeyDown={this.handleKeyDown}
         />
       </div>
     );

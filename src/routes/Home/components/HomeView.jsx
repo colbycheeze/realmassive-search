@@ -5,19 +5,28 @@ import BuildingCard from './BuildingCard';
 import Filter from './Filter';
 import classes from './HomeView.scss'; // eslint-disable-line
 
-export const HomeView = (props) => (
-  <div>
-    <Filter />
-    <h2>Displaying {props.offset} to {props.offset + props.limit} of {props.count}</h2>
-    <ul>
-      {props.buildings.map((building, i) => (
-        <li key={i}>
-          <BuildingCard building={building} />
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+export class HomeView extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    props.getBuildings();
+  }
+
+  render() {
+    return (
+      <div>
+        <Filter />
+        <h2>Displaying {this.props.offset} to {this.props.offset + this.props.limit} of {this.props.count}</h2>
+        <ul>
+          {this.props.buildings.map((building, i) => (
+            <li key={i}>
+              <BuildingCard building={building} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
 
 HomeView.propTypes = {
   getBuildings: React.PropTypes.func.isRequired,

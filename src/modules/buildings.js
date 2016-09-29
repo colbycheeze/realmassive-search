@@ -148,7 +148,7 @@ export function *watchGetBuildings() {
       yield put(getBuildingsSuccess(buildings));
 
       const ids = buildings.data
-        .filter(building => building.relationships && building.relationships.attachments)
+        .filter(building => _get(building, 'relationships.attachments', false))
         .map(building => building.relationships.attachments.data.map(attachment => attachment.id))
         .reduce((a, b) => a.concat(b)); // flatten array
 
